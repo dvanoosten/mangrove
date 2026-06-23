@@ -1,0 +1,25 @@
+name: mangrove
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.12.9
+  - pandas=2.2.3
+  - openpyxl
+  - pip
+  - pip:
+      - scipy
+      - matplotlib
+      - geopy
+      - haversine
+      - doublemetaphone
+      - abydos
+      - jellyfish
+  - r-base
+  - r-tidyverse
+  - r-pheatmap
+  - r-shiny
+  - r-bslib
+  - r-shinyjs
+  - r-reticulate
+  - r-dt

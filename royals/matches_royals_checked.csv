@@ -1,0 +1,21 @@
+AncID1,MgvID1,First_names_1,Last_name_1,Place_of_birth_1,Date_of_birth_1,AncIDs2,MgvID2,First_names_2,Last_name_2,Place_of_birth_2,Date_of_birth_2,Exact,Merge,Remove
+royals_RPMAR_2,Mgv000017,Albert Frederick Arthur George,Windsor,sandringham,'1895-12-14,['royals_RQEII_2'],Mgv000002,Albert Frederick Arthur George,Windsor,sandringham,'1895-12-14,TRUE,1,1
+royals_RPMAR_3,Mgv000018,Elizabeth Angela Marguerite,Bowes-Lyon,london,'1900-08-04,['royals_RQEII_3'],Mgv000003,Elizabeth Angela Marguerite,Bowes-Lyon,london,'1900-08-04,TRUE,1,1
+royals_RPMAR_4,Mgv000019,George Frederick Ernest Albert,Saxe-Coburg and Gotha,westminster,'1865-06-03,['royals_RQEII_4'],Mgv000004,George Frederick Ernest Albert,Saxe-Coburg and Gotha,westminster,'1865-06-03,TRUE,1,1
+royals_RPMAR_5,Mgv000020,Victoria Mary Augusta Louise Olga Pauline Claudine Agnes,Teck,london,'1867-05-26,['royals_RQEII_5'],Mgv000005,Victoria Mary Augusta Louise Olga Pauline Claudine Agnes,Teck,london,'1867-05-26,TRUE,1,1
+royals_RPMAR_6,Mgv000021,Claude George,Bowes-Lyon,belgravia,'1855-03-14,['royals_RQEII_6'],Mgv000006,Claude George,Bowes-Lyon,belgravia,'1855-03-14,TRUE,1,1
+royals_RPMAR_7,Mgv000022,Cecilia Nina,Cavendish-Bentinck,belgravia,'1862-09-11,['royals_RQEII_7'],Mgv000007,Cecilia Nina,Cavendish-Bentinck,belgravia,'1862-09-11,TRUE,1,1
+royals_RPMAR_8,Mgv000023,Albert Edward,Saxe-Coburg and Gotha,london,'1841-11-09,['royals_RQEII_8'],Mgv000008,Albert Edward,Saxe-Coburg and Gotha,london,'1841-11-09,TRUE,1,1
+royals_RPMAR_9,Mgv000024,Alexandra Caroline Marie Charlotte Louise Julia,Glücksburg,copenhagen,'1844-12-01,['royals_RQEII_9'],Mgv000009,Alexandra Caroline Marie Charlotte Louise Julia,Glücksburg,copenhagen,'1844-12-01,TRUE,1,1
+royals_RPMAR_10,Mgv000025,Francis Paul Charles Louis Alexander,Teck,esseg,'1837-08-28,['royals_RQEII_10'],Mgv000010,Francis Paul Charles Louis Alexander,Teck,esseg,'1837-08-28,TRUE,1,1
+royals_RPMAR_11,Mgv000026,Mary Adelaide Wilhelmina Elizabeth,Hanover,hanover,'1833-11-27,['royals_RQEII_11'],Mgv000011,Mary Adelaide Wilhelmina Elizabeth,Hanover,hanover,'1833-11-27,TRUE,1,1
+royals_RPMAR_12,Mgv000027,Claude George,Lyon-Bowes,redbourn,'1841-07-21,['royals_RQEII_12'],Mgv000012,Claude George,Lyon-Bowes,redbourn,'1841-07-21,TRUE,1,1
+royals_RPMAR_13,Mgv000028,Frances Dora,Smith,london,'1832-07-29,['royals_RQEII_13'],Mgv000013,Frances Dora,Smith,london,'1832-07-29,TRUE,1,1
+royals_RPMAR_14,Mgv000029,Charles William Frederick,Cavendish-Bentinck,london,'1817-11-08,['royals_RQEII_14'],Mgv000014,Charles William Frederick,Cavendish-Bentinck,london,'1817-11-08,TRUE,1,1
+royals_RPMAR_15,Mgv000030,Caroline Louisa,Burnaby,hungarton,'1832-12-05,['royals_RQEII_15'],Mgv000015,Caroline Louisa,Burnaby,hungarton,'1832-12-05,TRUE,1,1
+royals_RKHV_10,Mgv000040,Albert Edward,Saxe-Coburg and Gotha,london,'1841-11-09,['royals_RQEII_8'],Mgv000008,Albert Edward,Saxe-Coburg and Gotha,london,'1841-11-09,TRUE,1,1
+royals_RKHV_10,Mgv000040,Albert Edward,Saxe-Coburg and Gotha,london,'1841-11-09,['royals_RPMAR_8'],Mgv000023,Albert Edward,Saxe-Coburg and Gotha,london,'1841-11-09,TRUE,1,1
+royals_RKHV_11,Mgv000041,Alexandra Caroline Marie Charlotte Louise Julia,Glücksburg,copenhagen,'1844-12-01,['royals_RQEII_9'],Mgv000009,Alexandra Caroline Marie Charlotte Louise Julia,Glücksburg,copenhagen,'1844-12-01,TRUE,1,1
+royals_RKHV_11,Mgv000041,Alexandra Caroline Marie Charlotte Louise Julia,Glücksburg,copenhagen,'1844-12-01,['royals_RPMAR_9'],Mgv000024,Alexandra Caroline Marie Charlotte Louise Julia,Glücksburg,copenhagen,'1844-12-01,TRUE,1,1
+royals_RKHV_14,Mgv000044,Christian Frederik Vilhelm Carl,Glücksburg,copenhagen,'1843-06-03,['royals_RKHV_8'],Mgv000038,Christian Frederik Vilhelm Carl,Glücksburg,copenhagen,'1843-06-03,TRUE,1,1
+royals_RKHV_15,Mgv000045,Louise Josephine Eugenie,Bernadotte,stockholm,'1851-10-31,['royals_RKHV_9'],Mgv000039,Louise Josephine Eugenie,Bernadotte,stockholm,'1851-10-31,TRUE,1,1

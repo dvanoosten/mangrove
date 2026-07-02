@@ -3,6 +3,7 @@ library(bslib)
 library(shinyjs)
 library(reticulate)
 library(DT)
+library(leaflet)
 library(tidyverse)
 
 source("helpers.R")
@@ -90,8 +91,9 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "50px", wid
       ),
     ),
     mainPanel(
-      dataTableOutput(outputId = "masterTable"), style="font-size: 75%"), height="fit-content"
-  ),
+      card(dataTableOutput(outputId = "masterTable"), style="font-size: 75%", height="fit-content"),
+      card(leafletOutput("masterlistMap"), height="50%")
+  )),
   
   tabPanel(
     title = "Superpedigree browser",
@@ -184,37 +186,60 @@ observe({
                        label = paste("Name contains", dQuote(input$name_query, FALSE)))
   })
   
+  masterlist_filt <- reactiveVal()
+  observe({
+    filt_ids <- c("empty")
+    if (length(input$ogID_list) == 1) {
+      filt_ids <- append(filt_ids[-1], search_ogID_IDs(input$ogID_list, masterlist(), multiple=FALSE))
+    }
+    else if (length(input$ogID_list) > 1) {
+      filt_ids <- append(filt_ids[-1], search_ogID_IDs(input$ogID_list, masterlist(), multiple=TRUE))
+    }
+    if (input$name_query != "") {
+      filt_ids <- append(filt_ids[-1], search_name_IDs(input$name_query, masterlist(), input$name_DL, input$contains))
+    }
+    if (input$city_query != "") {
+      filt_ids <- append(filt_ids[-1], search_city_IDs(tolower(input$city_query), masterlist(), input$dist))
+    }
+    if (input$dob_query != as.Date("1800-01-01")) {
+      dob_query <- as.character(input$dob_query)
+      filt_ids <- append(filt_ids[-1], search_dob_IDs(dob_query, masterlist(), input$dob_DL, input$dob_day))
+    }
+    if (input$dod_query != as.Date("1800-01-01")) {
+      dod_query <- as.character(input$dod_query)
+      filt_ids <- append(filt_ids[-1], search_dod_IDs(dod_query, masterlist(), input$dod_DL, input$dod_day))
+    }
+    if (!is.na(filt_ids[1]) & filt_ids[1] == c("empty")) {
+      masterlist_filt(masterlist())
+    }
+    else {
+      masterlist_filt(filter(masterlist(), MgvID %in% filt_ids))
+    }
+  })
+  
   output$masterTable <- renderDataTable(
     DT::datatable({
-      masterlist_filt <- masterlist()
-      if (length(input$ogID_list) == 1) {
-        masterlist_filt <- filter(masterlist_filt, MgvID %in% search_ogID_IDs(input$ogID_list, masterlist(), multiple=FALSE))
-      }
-      else if (length(input$ogID_list) > 1) {
-        masterlist_filt <- filter(masterlist_filt, MgvID %in% search_ogID_IDs(input$ogID_list, masterlist(), multiple=TRUE))
-      }
-      if (input$name_query != "") {
-        masterlist_filt <- filter(masterlist_filt, MgvID %in% search_name_IDs(input$name_query, masterlist(), input$name_DL, input$contains))
-      }
-      if (input$city_query != "") {
-        masterlist_filt <- filter(masterlist_filt, MgvID %in% search_city_IDs(tolower(input$city_query), masterlist(), input$dist))
-      }
-      if (input$dob_query != as.Date("1800-01-01")) {
-        dob_query <- as.character(input$dob_query)
-        masterlist_filt <- filter(masterlist_filt, MgvID %in% search_dob_IDs(dob_query, masterlist(), input$dob_DL, input$dob_day))
-      }
-      if (input$dod_query != as.Date("1800-01-01")) {
-        dod_query <- as.character(input$dod_query)
-        masterlist_filt <- filter(masterlist_filt, MgvID %in% search_dod_IDs(dod_query, masterlist(), input$dod_DL, input$dod_day))
-      }
-      data = masterlist_filt %>%
+      data = masterlist_filt() %>%
         select(-c(Place_of_birth_code, Initials)) %>%
-        rename("Mangrove ID"="MgvID", "All AncIDs"="All_IDs") %>%
-        rename_with( ~gsub("_", " ", .x, fixed=TRUE))
+        rename("Mangrove ID"="MgvID", "All AncIDs"="All_IDs")
     },
     options = list(pageLength=15, searching=FALSE), rownames=FALSE
     )
   )
+  
+  output$masterlistMap <- renderLeaflet({
+    if (nrow(masterlist_filt()) < nrow(masterlist()) & nrow(masterlist_filt() > 0)) {
+      leaflet(filter(masterlist_filt(), Place_of_birth_code != " ") %>%
+                separate_wider_delim(Place_of_birth_code, ",", names=c("lat","long")) %>%
+                mutate_at(c("lat", "long"), as.numeric)) %>%
+        addTiles() %>%
+        addAwesomeMarkers(~long, ~lat, popup=~paste(MgvID, Place_of_birth, sep=", "), clusterOptions = markerClusterOptions())
+    }
+    else {
+      leaflet() %>%
+        addTiles()
+    }
+  })
   
   searchtype <- reactive(input$searchtype)
   id_list <- reactive({

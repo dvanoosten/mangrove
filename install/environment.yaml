@@ -23,3 +23,4 @@ dependencies:
   - r-shinyjs
   - r-reticulate
   - r-dt
+  - r-leaflet

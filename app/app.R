@@ -195,33 +195,28 @@ server <- function(input, output, session) {
   # filter masterlist by queries for individual search, render output table and map
   masterlist_filt <- reactiveVal()
   observe({
-    filt_ids <- c("empty")
+    filt_ids <- masterlist()$MgvID
     if (length(input$ogID_list) == 1) {
-      filt_ids <- append(filt_ids[-1], search_ogID_IDs(input$ogID_list, masterlist(), multiple=FALSE))
+      filt_ids <- intersect(search_ogID_IDs(input$ogID_list, masterlist(), multiple=FALSE), filt_ids)
     }
     else if (length(input$ogID_list) > 1) {
-      filt_ids <- append(filt_ids[-1], search_ogID_IDs(input$ogID_list, masterlist(), multiple=TRUE))
+      filt_ids <- intersect(search_ogID_IDs(input$ogID_list, masterlist(), multiple=TRUE), filt_ids)
     }
     if (input$name_query != "") {
-      filt_ids <- append(filt_ids[-1], search_name_IDs(input$name_query, masterlist(), input$name_DL, input$contains))
+      filt_ids <- intersect(search_name_IDs(input$name_query, masterlist(), input$name_DL, input$contains), filt_ids)
     }
     if (input$city_query != "") {
-      filt_ids <- append(filt_ids[-1], search_city_IDs(tolower(input$city_query), masterlist(), input$dist))
+      filt_ids <- intersect(search_city_IDs(tolower(input$city_query), masterlist(), input$dist), filt_ids)
     }
     if (input$dob_query != as.Date("1800-01-01")) {
       dob_query <- as.character(input$dob_query)
-      filt_ids <- append(filt_ids[-1], search_dob_IDs(dob_query, masterlist(), input$dob_DL, input$dob_day))
+      filt_ids <- intersect(search_dob_IDs(dob_query, masterlist(), input$dob_DL, input$dob_day), filt_ids)
     }
     if (input$dod_query != as.Date("1800-01-01")) {
       dod_query <- as.character(input$dod_query)
-      filt_ids <- append(filt_ids[-1], search_dod_IDs(dod_query, masterlist(), input$dod_DL, input$dod_day))
+      filt_ids <- intersect(search_dod_IDs(dod_query, masterlist(), input$dod_DL, input$dod_day), filt_ids)
     }
-    if (!is.na(filt_ids[1]) & filt_ids[1] == c("empty")) {
-      masterlist_filt(masterlist())
-    }
-    else {
-      masterlist_filt(filter(masterlist(), MgvID %in% filt_ids))
-    }
+    masterlist_filt(filter(masterlist(), MgvID %in% filt_ids))
   })
   
   output$masterTable <- renderDataTable(

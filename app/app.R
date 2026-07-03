@@ -11,10 +11,12 @@ source("helpers.R")
 use_python("~/miniforge3/envs/name-matching/bin/python", required = T) # CHECK
 source_python("search_functions.py")
 
-ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "50px", width = "auto",
-                                 style = "background-color: transparent; position: relative; top: -15px;left: 5px;")),
+ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "100px", width = "auto",
+                                 style = "background-color: transparent; position: relative; top: -40px;left: 5px;")),
                  windowTitle = "Mangrove",
-  tabPanel( 
+                 tags$style(HTML(".navbar {padding-top:25px !important; height: 100px; font-size: 20px}")),               
+  tabPanel(
+    # opening tab with general information and data selection
     title = "General",
     selectInput(
       inputId = "batchID",
@@ -24,7 +26,8 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "50px", wid
     a("See also Wikipedia", href="https://en.wikipedia.org/wiki/Ahnentafel#:~:text=Seize%20Quartiers.-,Inductive%20reckoning,-%5Bedit%5D"),
     uiOutput(outputId = "example_ped")
   ),
-  tabPanel( 
+  tabPanel(
+    # individual search tab, sidebar for query input, masterlist table and map as output
     title = "Search individuals",
     sidebarPanel(
       useShinyjs(),
@@ -93,9 +96,11 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "50px", wid
     mainPanel(
       card(dataTableOutput(outputId = "masterTable"), style="font-size: 75%", height="fit-content"),
       card(leafletOutput("masterlistMap"), height="50%")
-  )),
+    )
+  ),
   
   tabPanel(
+    # superpedigree browser tab, sidebar with search input, pedigree plot and table as output
     title = "Superpedigree browser",
     sidebarPanel(
       radioButtons(
@@ -135,13 +140,14 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "50px", wid
     mainPanel(
       card(plotOutput(outputId = "pedPlot"), height="100%"),
       card(card_header("Individuals in pedigree", style="font-size: 150%; font-weight: bold"),
-           dataTableOutput(outputId = "indTable"), height="50%", style="font-size: 75%"),
-    ),
-  ),
+           dataTableOutput(outputId = "indTable"), height="50%", style="font-size: 75%")
+    )
+  )
 )
  
 
 server <- function(input, output, session) {
+  # read in data and update input controls
   output$example_ped <- renderUI({img(src="kwartierstaat_plot.png", style="width:50%")})
 
   proband_IDs <- reactiveVal()
@@ -156,36 +162,37 @@ server <- function(input, output, session) {
     masterlist(read.csv(paste0("../",input$batchID,"/masterlist_",input$batchID,".csv")) %>% 
                  mutate(across(c("Date_of_birth", "Date_of_death"), ~ substr(.x, 2, nchar(.x))))) # CHECK
   
-  updateSelectizeInput(session, "ogID_list",
-                       choices = sort(unique(proband_IDs()$ogID)), server = TRUE
-  )
-  
-  updateSelectizeInput(session, "SupPEDID",
-                       choices = sort(unique(proband_IDs()$SupPEDID))[-1], server = TRUE
-  )
-  updateSelectizeInput(session, "PEDID",
-                       choices = sort(unique(proband_IDs()$PEDID))[-1], server = TRUE
-  )
-  updateSelectizeInput(session, "MgvID",
-                       choices = sort(unique(ped_data()$ID)), server = TRUE
-  )
-  updateSelectizeInput(session, "ogID",
-                       choices = sort(unique(proband_IDs()$ogID)), server = TRUE
-  )
-  
-})
+    updateSelectizeInput(session, "ogID_list",
+                         choices = sort(unique(proband_IDs()$ogID)), server = TRUE
+    )
+    
+    updateSelectizeInput(session, "SupPEDID",
+                         choices = sort(unique(proband_IDs()$SupPEDID))[-1], server = TRUE
+    )
+    updateSelectizeInput(session, "PEDID",
+                         choices = sort(unique(proband_IDs()$PEDID))[-1], server = TRUE
+    )
+    updateSelectizeInput(session, "MgvID",
+                         choices = sort(unique(ped_data()$ID)), server = TRUE
+    )
+    updateSelectizeInput(session, "ogID",
+                         choices = sort(unique(proband_IDs()$ogID)), server = TRUE
+    )
+    
+  })
 
   observeEvent(input$reset, {tagList(
     reset("side_panel"), 
     updateActionButton(session, "contains", label = "Name contains")
   )})
   
-observe({
+  observe({
     req(input$name_query)
     updateActionButton(session, "contains",
                        label = paste("Name contains", dQuote(input$name_query, FALSE)))
   })
   
+  # filter masterlist by queries for individual search, render output table and map
   masterlist_filt <- reactiveVal()
   observe({
     filt_ids <- c("empty")
@@ -241,6 +248,7 @@ observe({
     }
   })
   
+  # get ID list and pedigree object from superpedigree query, render output plot and table
   searchtype <- reactive(input$searchtype)
   id_list <- reactive({
     if (searchtype() == "Superpedigree ID (Mangrove)") 

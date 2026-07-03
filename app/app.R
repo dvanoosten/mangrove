@@ -55,9 +55,13 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "100px", wi
         label = "Number of typos allowed in name",
         min = 0, max = 5, value = 1, ticks = FALSE
       ),
-      textInput(
+      selectizeInput(
         inputId = "city_query",
-        label = "Place of birth"
+        label = "Place of birth",
+        choices = NULL,
+        options = list(maxItems = "1",
+                       onDropdownOpen = I("function($dropdown) {if (!this.lastQuery.length) {this.close(); this.settings.openOnFocus = false;}}"),
+                       onType = I("function (str) {if (str === \"\") {this.close();}}"))
       ),
       sliderInput(
         inputId = "dist",
@@ -165,6 +169,9 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "ogID_list",
                          choices = sort(unique(proband_IDs()$ogID)), server = TRUE
     )
+    updateSelectizeInput(session, "city_query",
+                         choices = c("", sort(unique(names(city_codes)))), server = TRUE
+    )
     
     updateSelectizeInput(session, "SupPEDID",
                          choices = sort(unique(proband_IDs()$SupPEDID))[-1], server = TRUE
@@ -206,7 +213,7 @@ server <- function(input, output, session) {
       filt_ids <- intersect(search_name_IDs(input$name_query, masterlist(), input$name_DL, input$contains), filt_ids)
     }
     if (input$city_query != "") {
-      filt_ids <- intersect(search_city_IDs(tolower(input$city_query), masterlist(), input$dist), filt_ids)
+      filt_ids <- intersect(search_city_IDs(input$city_query, masterlist(), input$dist), filt_ids)
     }
     if (input$dob_query != as.Date("1800-01-01")) {
       dob_query <- as.character(input$dob_query)

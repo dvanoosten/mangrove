@@ -11,7 +11,7 @@ source("helpers.R")
 use_python("~/miniforge3/envs/name-matching/bin/python", required = T) # CHECK
 source_python("search_functions.py")
 
-ui <- navbarPage(title = div(img(src = "mangrove_logo.png", height = "100px", width = "auto",
+ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100px", width = "auto",
                                  style = "background-color: transparent; position: relative; top: -40px;left: 5px;")),
                  windowTitle = "Mangrove",
                  tags$style(HTML(".navbar {padding-top:25px !important; height: 100px; font-size: 20px}")),               

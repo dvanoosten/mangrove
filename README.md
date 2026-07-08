@@ -28,4 +28,4 @@ All steps of the pipeline are described below. File paths that need to be be adj
   - `get_pairs.R` extracts all pairwise relationships from the data, and estimates whether or not the relationships were previously known, based on the original pedigree IDs.
 5. Databrowser: all data can be viewed and queried in an interactive Rshiny app. This databrowser has two main functions; searching the database of ancestors based on (last) name, place of birth, or date of birth or death (with adjustable strictness settings), and to interactively view superpedigrees, which can be queried based on superpedigree ID original pedigree ID, Mangrove ID, or original ID. Note that in order for the app to work, the python path has to be set explicitly to the one installed with the conda environment. The app can be launched from Rstudio, by opening the script and clicking 'Run App' in the top right corner of the editor window.
 
-![image](app/www/mangrove_logo.png)
+![image](mangrove_logo_small.png)

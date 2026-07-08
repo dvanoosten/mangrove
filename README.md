@@ -2,6 +2,8 @@
 Mangrove is a software toolkit for reconstructing extended pedigrees (superpedigrees) from archive data. Key features include automated detection of shared ancestors and an interactive databrowser to view the constructed superpedigrees and query the database of ancestors.
 If Mangrove is useful for your work, please cite Beele, Van Oosten, Wang et al. (2026) Detecting Distant Relatedness Enables Pathogenic Haplotype Discovery In Dutch C9orf72-ALS Patients, bioRxiv when publishing.  Please note that this is a beta version, and despite our tests, there might still be some minor issues with the code. For technical support, feedback, or other inquiries, feel free to contact Daphne van Oosten at d.vanoosten-6@umcutrecht.nl
 
+![image](mangrove_workflow.png)
+
 ### Installation
 Mangrove requires several packages/modules in R/Python.
 
@@ -25,3 +27,5 @@ All steps of the pipeline are described below. File paths that need to be be adj
   - `plot_ped.R` makes a pdf file with plots of all superpedigrees.
   - `get_pairs.R` extracts all pairwise relationships from the data, and estimates whether or not the relationships were previously known, based on the original pedigree IDs.
 5. Databrowser: all data can be viewed and queried in an interactive Rshiny app. This databrowser has two main functions; searching the database of ancestors based on (last) name, place of birth, or date of birth or death (with adjustable strictness settings), and to interactively view superpedigrees, which can be queried based on superpedigree ID original pedigree ID, Mangrove ID, or original ID. Note that in order for the app to work, the python path has to be set explicitly to the one installed with the conda environment. The app can be launched from Rstudio, by opening the script and clicking 'Run App' in the top right corner of the editor window.
+
+![image](app/www/mangrove_logo.png)

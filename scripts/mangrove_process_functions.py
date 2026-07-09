@@ -36,13 +36,20 @@ def fix_sex(AncID, sex):
 
 def fix_date(date):
     # clean dates: remove other characters, split merged day-month or month-year, correct impossible dates
-    if type(date) == str:
-        date_clean = date.rstrip().replace("+","").replace("!","1").replace("--","-").\
+    change = 0
+    if type(date) == str or type(date) == int:
+        date_in = str(date)
+        date_clean = date_in.rstrip().lstrip().replace("+","").replace("!","1").replace("--","-").\
             replace("*", "01").replace("xx", "01").replace("00", "01").replace("XXXX", "1800")
         date_split = date_clean.split("-")
-        if len(date_split) < 3:
+        if len(date_split) == 1:
+            year = date_split[0]
+            if len(year) == 4:
+                day = "01"
+                month = "01"
+        elif len(date_split) == 2:
             day = date_split[0]
-            year = date_split[-1]
+            year = date_split[1]
             if len(year) > 4:
                 month = year[:-4]
                 year = year[-4:]
@@ -53,9 +60,9 @@ def fix_date(date):
                 month = day[2:]
                 day = day[:2]
         else:
-            day = date_split[0]
-            month = date_split[1]
-            year = date_split[2]
+            day = date_split[-3]
+            month = date_split[-2]
+            year = date_split[-1]
         day = day[:2]
         month = month[:2]
         year = year[:4]
@@ -70,12 +77,15 @@ def fix_date(date):
         elif int(day)-1 > 30 or (int(month) in [4,6,9,11] and int(day)-1 > 29) or \
             (int(month) == 2 and int(day)-1 > 27 and int(year)%4 != 0):
             day = day[::-1]
-        return(datetime(int(year), int(month), int(day)).strftime("\'%Y-%m-%d"))
+        if str(day)+"-"+str(month)+"-"+str(year) != date_in:
+            change = 1
+        return((datetime(int(year), int(month), int(day)).strftime("\'%Y-%m-%d"), change))
    
     elif type(date) == datetime:
-        return(date.strftime("\'%Y-%m-%d"))
+        return((date.strftime("\'%Y-%m-%d"), change))
+
     else:
-        return(date)
+        return((date, change))
     
 def record_match(rec1, rec2):
     # check if records of ancestors match based on name, place and date of birth

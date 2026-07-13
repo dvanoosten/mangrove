@@ -42,6 +42,10 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
         choices = NULL,
         multiple = TRUE
       ),
+      checkboxInput(
+        inputId = "prob_only",
+        label = "Search probands only"
+      ),
       textInput(
         inputId = "name_query",
         label = "Last name"
@@ -223,7 +227,14 @@ server <- function(input, output, session) {
       dod_query <- as.character(input$dod_query)
       filt_ids <- intersect(search_dod_IDs(dod_query, masterlist(), input$dod_DL, input$dod_day), filt_ids)
     }
-    masterlist_filt(filter(masterlist(), MgvID %in% filt_ids))
+    
+    if (input$prob_only) {
+      masterlist_filt(filter(masterlist(), MgvID %in% intersect(filt_ids, proband_IDs()$MgvID)))
+    }
+    else {
+      masterlist_filt(filter(masterlist(), MgvID %in% filt_ids))
+    }
+    
   })
   
   output$masterTable <- renderDataTable(
@@ -237,7 +248,9 @@ server <- function(input, output, session) {
   )
   
   output$masterlistMap <- renderLeaflet({
-    if (nrow(masterlist_filt()) < nrow(masterlist()) & nrow(masterlist_filt() > 0)) {
+    if (nrow(masterlist_filt() > 0) &
+        ((!input$prob_only & nrow(masterlist_filt()) < nrow(masterlist())) |
+         (input$prob_only & nrow(masterlist_filt()) < nrow(proband_IDs())))) {
       leaflet(filter(masterlist_filt(), Place_of_birth_code != " ") %>%
                 separate_wider_delim(Place_of_birth_code, ",", names=c("lat","long")) %>%
                 mutate_at(c("lat", "long"), as.numeric)) %>%

@@ -86,7 +86,7 @@ def get_MgvIDs(searchtype, query, masterlist, ped_data, proband_IDs):
     if searchtype == "SupPEDID":
         return({"MgvIDs":ped_data.loc[ped_data["SupPEDID"]==query, "ID"].values.tolist(), "title":"Superpedigree "+query})
     elif searchtype == "PEDID":
-        SupPEDID = sorted(list(set(proband_IDs.loc[proband_IDs["PEDID"]==query, "SupPEDID"].values)))
+        SupPEDID = sorted([i for i in set(proband_IDs.loc[proband_IDs["PEDID"]==query, "SupPEDID"].values) if i!=""])
         if len(SupPEDID)==0:
             ogID = proband_IDs.loc[proband_IDs["PEDID"]==query, "ogID"].values[0]
             MgvIDs = masterlist.loc[masterlist["All_IDs"].apply(lambda x: any([ogID in ID for ID in x])), "MgvID"].values.tolist()

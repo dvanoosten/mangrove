@@ -8,7 +8,7 @@ add_dummy_parents <- function(ped_data) {
     dummy_id <- paste0("Dummy_", mid)
     ped_data <- mutate(ped_data, Fathers = 
                          case_when(Mother==mid & Father=="" ~ dummy_id, .default = Father))
-    if (!(dummy_id %in% ped_data$Individual_ID)) {
+    if (!(dummy_id %in% ped_data$ID)) {
       ped_data <- rbind(ped_data, data.frame(
         ID = dummy_id, Father = "", Mother = "", Sex = 1,
         SupPEDID = filter(ped_data, Mother==mid)$SupPEDID, Proband = NA))
@@ -19,7 +19,7 @@ add_dummy_parents <- function(ped_data) {
     dummy_id <- paste0("Dummy_", fid)
     ped_data <- mutate(ped_data, Mother = 
                          case_when(Father==fid & Mother=="" ~ dummy_id, .default = Mother))
-    if (!(dummy_id %in% ped_data$Individual_ID)) {
+    if (!(dummy_id %in% ped_data$ID)) {
       ped_data <- rbind(ped_data, data.frame(
         ID = dummy_id, Father = "", Mother = "",Sex = 2,
         SupPEDID = filter(ped_data, Father==fid)$SupPEDID, Proband = NA))

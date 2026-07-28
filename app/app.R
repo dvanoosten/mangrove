@@ -11,6 +11,9 @@ source("helpers.R")
 use_python("~/miniforge3/envs/name-matching/bin/python", required = T) # CHECK
 source_python("search_functions.py")
 
+dropdown_options <- list(maxItems = "1", onType = I("function (str) {if (str === \"\") {this.close();}}"),
+                         onDropdownOpen = I("function($dropdown) {if (!this.lastQuery.length) {this.close(); this.settings.openOnFocus = false;}}"))
+
 ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100px", width = "auto",
                                  style = "background-color: transparent; position: relative; top: -40px;left: 5px;")),
                  windowTitle = "Mangrove",
@@ -36,11 +39,13 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
         inputId = "reset",
         label = "Reset filters"
       ),
-      selectInput(
+      selectizeInput(
         inputId = "ogID_list",
-        label = "original ID",
+        label = "Original ID(s)",
         choices = NULL,
-        multiple = TRUE
+        multiple = TRUE,
+        options = list(onItemAdd = I("function() {this.close();}"), onType = I("function (str) {if (str === \"\") {this.close();}}"),
+                       onDropdownOpen = I("function($dropdown) {if (!this.lastQuery.length) {this.close(); this.settings.openOnFocus = false;}}"))
       ),
       checkboxInput(
         inputId = "prob_only",
@@ -63,9 +68,7 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
         inputId = "city_query",
         label = "Place of birth",
         choices = NULL,
-        options = list(maxItems = "1",
-                       onDropdownOpen = I("function($dropdown) {if (!this.lastQuery.length) {this.close(); this.settings.openOnFocus = false;}}"),
-                       onType = I("function (str) {if (str === \"\") {this.close();}}"))
+        options = dropdown_options
       ),
       sliderInput(
         inputId = "dist",
@@ -117,28 +120,32 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
         choices = c("Superpedigree ID (Mangrove)", "Pedigree ID (original)", "Mangrove ID", "Original ID")
       ),
       conditionalPanel("input.searchtype == 'Superpedigree ID (Mangrove)'",
-        selectInput(
+        selectizeInput(
           inputId = "SupPEDID",
           label = "Superpedigree ID (Mangrove)",
-          choices = NULL
+          choices = NULL,
+          options = dropdown_options
       )),
       conditionalPanel("input.searchtype == 'Pedigree ID (original)'",
-        selectInput(
+        selectizeInput(
           inputId = "PEDID",
           label = "Pedigree ID (original)",
-          choices = NULL
+          choices = NULL,
+          options = dropdown_options
       )),
       conditionalPanel("input.searchtype == 'Mangrove ID'",
-        selectInput(
+        selectizeInput(
           inputId = "MgvID",
           label = "Mangrove ID",
-          choices = NULL
+          choices = NULL,
+          options = dropdown_options
       )),
       conditionalPanel("input.searchtype == 'Original ID'",
-        selectInput(
+        selectizeInput(
           inputId = "ogID",
           label = "Original ID",
-          choices = NULL
+          choices = NULL,
+          options = dropdown_options
       )),
       checkboxInput(
         inputId = "trim_ped",
@@ -162,6 +169,9 @@ server <- function(input, output, session) {
   ped_data <- reactiveVal()
   masterlist <- reactiveVal()
   
+  SupPEDID_choices <- reactiveVal()
+  PEDID_choices <- reactiveVal()
+  
   observe({
     proband_IDs(read.csv(paste0("../",input$batchID,"/proband_IDs_",input$batchID,".csv"), colClasses="character") %>%
                 mutate(label = paste(ogID, PEDID, sep="\n"))) # CHECK
@@ -177,17 +187,19 @@ server <- function(input, output, session) {
                          choices = c("", sort(unique(names(city_codes)))), server = TRUE
     )
     
+    SupPEDID_choices(sort(unique(proband_IDs()$SupPEDID))[-1])
     updateSelectizeInput(session, "SupPEDID",
-                         choices = sort(unique(proband_IDs()$SupPEDID))[-1], server = TRUE
+                         choices = c("", SupPEDID_choices()), server = TRUE
     )
+    PEDID_choices(sort(unique(proband_IDs()$PEDID))[-1])
     updateSelectizeInput(session, "PEDID",
-                         choices = sort(unique(proband_IDs()$PEDID))[-1], server = TRUE
+                         choices = c("", SupPEDID_choices()), server = TRUE
     )
     updateSelectizeInput(session, "MgvID",
-                         choices = sort(unique(ped_data()$ID)), server = TRUE
+                         choices = c("", sort(unique(ped_data()$ID))), server = TRUE
     )
     updateSelectizeInput(session, "ogID",
-                         choices = sort(unique(proband_IDs()$ogID)), server = TRUE
+                         choices = c("", sort(unique(proband_IDs()$ogID))), server = TRUE
     )
     
   })
@@ -264,27 +276,32 @@ server <- function(input, output, session) {
   })
   
   # get ID list and pedigree object from superpedigree query, render output plot and table
-  searchtype <- reactive(input$searchtype)
-  id_list <- reactive({
-    if (searchtype() == "Superpedigree ID (Mangrove)") 
-      get_MgvIDs("SupPEDID", input$SupPEDID, masterlist(), ped_data(), proband_IDs())
-    else if (searchtype() == "Pedigree ID (original)") 
-      get_MgvIDs("PEDID", input$PEDID, masterlist(), ped_data(), proband_IDs())
-    else if (searchtype() == "Mangrove ID") 
-      get_MgvIDs("MgvID", input$MgvID, masterlist(), ped_data(), proband_IDs())
-    else if (searchtype() == "Original ID") 
-      get_MgvIDs("ogID", input$ogID, masterlist(), ped_data(), proband_IDs())
+  id_list <- reactiveVal()
+  observe({
+    if (input$searchtype == "Superpedigree ID (Mangrove)" & input$SupPEDID %in% SupPEDID_choices()) 
+      id_list(get_MgvIDs("SupPEDID", input$SupPEDID, masterlist(), ped_data(), proband_IDs()))
+    else if (input$searchtype == "Pedigree ID (original)" & input$PEDID %in% PEDID_choices()) 
+      id_list(get_MgvIDs("PEDID", input$PEDID, masterlist(), ped_data(), proband_IDs()))
+    else if (input$searchtype == "Mangrove ID" & input$MgvID %in% ped_data()$ID) 
+      id_list(get_MgvIDs("MgvID", input$MgvID, masterlist(), ped_data(), proband_IDs()))
+    else if (input$searchtype == "Original ID" & input$ogID %in% proband_IDs()$ogID) 
+      id_list(get_MgvIDs("ogID", input$ogID, masterlist(), ped_data(), proband_IDs()))
+    else
+      id_list(NULL)
   })
   
   ped_output <- reactive({
+    validate(need(! is.null(id_list()), FALSE))
     get_ped(id_list()$MgvIDs, input$trim_ped, ped_data(), proband_IDs(), masterlist())
   })
   
   output$pedPlot <- renderPlot({
+    validate(need(! is.null(id_list()), "Enter a valid ID"))
     plot_ped(ped_output()$ped_obj, id_list()$title)
   })
   
   output$indTable <- renderDataTable({
+    validate(need(! is.null(id_list()), FALSE))
     DT::datatable(data = ped_output()$ind_table %>%
                     rename("Mangrove ID"="MgvID", "All AncIDs"="All_IDs") %>%
                     rename_with( ~gsub("_", " ", .x, fixed=TRUE)),

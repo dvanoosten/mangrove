@@ -35,6 +35,7 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
     sidebarPanel(
       useShinyjs(),
       id = "side_panel",
+      width = 3,
       actionButton(
         inputId = "reset",
         label = "Reset filters"
@@ -105,6 +106,7 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
       ),
     ),
     mainPanel(
+      width = 9,
       card(dataTableOutput(outputId = "masterTable"), style="font-size: 75%", height="fit-content"),
       card(leafletOutput("masterlistMap"), height="50%")
     )
@@ -114,6 +116,7 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
     # superpedigree browser tab, sidebar with search input, pedigree plot and table as output
     title = "Superpedigree browser",
     sidebarPanel(
+      width = 3,
       radioButtons(
         inputId = "searchtype",
         label = "Search by",
@@ -153,6 +156,7 @@ ui <- navbarPage(title = div(img(src = "mangrove_logo_large.png", height = "100p
       ),
     ),
     mainPanel(
+      width = 9,
       card(plotOutput(outputId = "pedPlot"), height="100%"),
       card(card_header("Individuals in pedigree", style="font-size: 150%; font-weight: bold"),
            dataTableOutput(outputId = "indTable"), height="50%", style="font-size: 75%")

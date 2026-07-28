@@ -253,7 +253,9 @@ server <- function(input, output, session) {
     DT::datatable({
       data = masterlist_filt() %>%
         select(-c(Place_of_birth_code, Initials)) %>%
-        rename("Mangrove ID"="MgvID", "All AncIDs"="All_IDs")
+        left_join(select(ped_data(), c(ID, SupPEDID)), by=join_by(MgvID == ID)) %>%
+        relocate(SupPEDID, .after = MgvID) %>%
+        rename("Mangrove ID"="MgvID", "Superpedigree ID"="SupPEDID", "All AncIDs"="All_IDs")
     },
     options = list(pageLength=15, searching=FALSE), rownames=FALSE
     )

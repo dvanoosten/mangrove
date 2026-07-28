@@ -269,7 +269,10 @@ server <- function(input, output, session) {
                 separate_wider_delim(Place_of_birth_code, ",", names=c("lat","long")) %>%
                 mutate_at(c("lat", "long"), as.numeric)) %>%
         addTiles() %>%
-        addAwesomeMarkers(~long, ~lat, popup=~paste(MgvID, Place_of_birth, sep=", "), clusterOptions = markerClusterOptions())
+        addAwesomeMarkers(
+          ~long, ~lat, clusterOptions = markerClusterOptions(),
+          popup=~paste(MgvID, paste0("Last name: ", Last_name), paste0("Place of birth: ", Place_of_birth), sep="<br>")
+        )
     }
     else {
       leaflet() %>%

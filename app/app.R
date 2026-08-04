@@ -178,7 +178,7 @@ server <- function(input, output, session) {
   
   observe({
     proband_IDs(read.csv(paste0("../",input$batchID,"/proband_IDs_",input$batchID,".csv"), colClasses="character") %>%
-                mutate(label = paste(ogID, PEDID, sep="\n"))) # CHECK
+                mutate(Label = paste(ogID, PEDID, sep="\n"))) # CHECK
     ped_data(read.csv(paste0("../",input$batchID,"/ped_",input$batchID,".csv")) %>%
                mutate(Sex = case_match(Sex, "M"~1, "F"~2))) # CHECK
     masterlist(read.csv(paste0("../",input$batchID,"/masterlist_",input$batchID,".csv")) %>% 
@@ -197,7 +197,7 @@ server <- function(input, output, session) {
     )
     PEDID_choices(sort(unique(proband_IDs()$PEDID))[-1])
     updateSelectizeInput(session, "PEDID",
-                         choices = c("", SupPEDID_choices()), server = TRUE
+                         choices = c("", PEDID_choices()), server = TRUE
     )
     updateSelectizeInput(session, "MgvID",
                          choices = c("", sort(unique(ped_data()$ID))), server = TRUE

@@ -16,7 +16,7 @@ get_ped <- function(MgvIDs, trim_ped, ped_data, proband_IDs, masterlist) {
     select(-c(Place_of_birth_code, Initials))
   
   proband_IDs_fam <- filter(proband_IDs, MgvID %in% MgvIDs)
-  proband_labs <- setNames(proband_IDs_fam$ogID, proband_IDs_fam$MgvID)
+  proband_labs <- setNames(proband_IDs_fam$Label, proband_IDs_fam$MgvID)
   
   ped_obj <- ped(id = ped_data_fam$ID, fid = ped_data_fam$Father, mid = ped_data_fam$Mother,
                  sex = ped_data_fam$Sex, isConnected = TRUE)

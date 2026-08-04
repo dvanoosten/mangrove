@@ -80,34 +80,59 @@ def search_dod_IDs(date_query, masterlist, DL, day):
     IDs = masterlist[masterlist["Death_of_death"].apply(search_date, args=[date_query, DL, day])]["MgvID"].tolist()
     return(IDs)
 
+def get_title_warning(PEDIDs, proband_IDs, title):
+    for PEDID in PEDIDs:
+        SupPEDIDs = sorted([i for i in set(proband_IDs.loc[proband_IDs["PEDID"]==PEDID, "SupPEDID"].values) if i!=""])
+        ogIDs = sorted([i for i in set(proband_IDs.loc[(proband_IDs["PEDID"]==PEDID) & (proband_IDs["SupPEDID"]==""), "ogID"].values)])
+        title_ids = SupPEDIDs + ogIDs
+        if len(title_ids) > 1:
+            title += "\nNote: probands from pedigree "+PEDID+" in multiple superpedigrees/ancestor tables:\n"+", ".join(title_ids)
+    return(title)
+
 def get_MgvIDs(searchtype, query, masterlist, ped_data, proband_IDs):
-    # get MgvIDs of individuals in superpedigree or ancestor table
+    # get MgvIDs of individuals in superpedigree or kwartierstaat
     masterlist["All_IDs"] = masterlist["All_IDs"].apply(lambda x: x[1:-1].split(','))
     if searchtype == "SupPEDID":
-        return({"MgvIDs":ped_data.loc[ped_data["SupPEDID"]==query, "ID"].values.tolist(), "title":"Superpedigree "+query})
+        MgvIDs = ped_data.loc[ped_data["SupPEDID"]==query, "ID"].values.tolist()
+        title = "Superpedigree "+query
+        PEDIDs = sorted([i for i in set(proband_IDs.loc[proband_IDs["SupPEDID"]==query, "PEDID"].values) if i!=""])
+        title = get_title_warning(PEDIDs, proband_IDs, title)
     elif searchtype == "PEDID":
-        SupPEDID = sorted([i for i in set(proband_IDs.loc[proband_IDs["PEDID"]==query, "SupPEDID"].values) if i!=""])
-        if len(SupPEDID)==0:
+        SupPEDIDs = sorted([i for i in set(proband_IDs.loc[proband_IDs["PEDID"]==query, "SupPEDID"].values) if i!=""])
+        if len(SupPEDIDs)==0:
             ogID = proband_IDs.loc[proband_IDs["PEDID"]==query, "ogID"].values[0]
             MgvIDs = masterlist.loc[masterlist["All_IDs"].apply(lambda x: any([ogID in ID for ID in x])), "MgvID"].values.tolist()
-            return({"MgvIDs":MgvIDs, "title":"Ancestor table "+ogID})
-        elif len(SupPEDID)==1:
-            return({"MgvIDs":ped_data.loc[ped_data["SupPEDID"]==SupPEDID[0], "ID"].values.tolist(), "title":"Superpedigree "+SupPEDID[0]})
+            title = "Ancestor table "+ogID
+            PEDIDs = [query]
+            title = get_title_warning(PEDIDs, proband_IDs, title)
         else:
-            return({"MgvIDs":ped_data.loc[ped_data["SupPEDID"]==SupPEDID[0], "ID"].values.tolist(), \
-                    "title":"Superpedigree "+SupPEDID[0]+"\nNote: there are more probands from pedigree "+query+" in superpedigrees "+", ".join(SupPEDID[1:])})
+            MgvIDs = ped_data.loc[ped_data["SupPEDID"]==SupPEDIDs[0], "ID"].values.tolist()
+            title = "Superpedigree "+SupPEDIDs[0]
+            PEDIDs = [query]
+            title = get_title_warning(PEDIDs, proband_IDs, title)
     elif searchtype == "MgvID":
         SupPEDID = ped_data.loc[ped_data["ID"]==query, "SupPEDID"].values[0]
-        if SupPEDID=="":
+        if SupPEDID == "":
             ogID = masterlist.loc[masterlist["MgvID"]==query, "All_IDs"].values[0][0].split("_")[1]
             MgvIDs = masterlist.loc[masterlist["All_IDs"].apply(lambda x: any([ogID in ID for ID in x])), "MgvID"].values.tolist()
-            return({"MgvIDs":MgvIDs, "title":"Ancestor table "+ogID})
+            title = "Ancestor table "+ogID
+            PEDIDs = sorted([i for i in set(proband_IDs.loc[proband_IDs["MgvID"].isin(MgvIDs), "PEDID"].values) if i!=""])
+            title = get_title_warning(PEDIDs, proband_IDs, title)
         else:
-            return({"MgvIDs":ped_data.loc[ped_data["SupPEDID"]==SupPEDID, "ID"].values.tolist(), "title":"Superpedigree "+SupPEDID})
+            MgvIDs = ped_data.loc[ped_data["SupPEDID"]==SupPEDID, "ID"].values.tolist()
+            title = "Superpedigree "+SupPEDID
+            PEDIDs = sorted([i for i in set(proband_IDs.loc[proband_IDs["MgvID"].isin(MgvIDs), "PEDID"].values) if i!=""])
+            title = get_title_warning(PEDIDs, proband_IDs, title)
     elif searchtype == "ogID":
         SupPEDID = proband_IDs.loc[proband_IDs["ogID"]==query, "SupPEDID"].values[0]
-        if SupPEDID=="":
+        if SupPEDID == "":
             MgvIDs = masterlist.loc[masterlist["All_IDs"].apply(lambda x: any([query in ID for ID in x])), "MgvID"].values.tolist()
-            return({"MgvIDs":MgvIDs, "title":"Ancestor table "+query})
+            title = "Ancestor table "+query
+            PEDIDs = [i for i in proband_IDs.loc[proband_IDs["ogID"]==query, "PEDID"].values if i!=""]
+            title = get_title_warning(PEDIDs, proband_IDs, title)
         else:
-            return({"MgvIDs":ped_data.loc[ped_data["SupPEDID"]==SupPEDID, "ID"].values.tolist(), "title":"Superpedigree "+SupPEDID})
+            MgvIDs = ped_data.loc[ped_data["SupPEDID"]==SupPEDID, "ID"].values.tolist()
+            title = "Superpedigree "+SupPEDID
+            PEDIDs = [i for i in proband_IDs.loc[proband_IDs["ogID"]==query, "PEDID"].values if i!=""]
+            title = get_title_warning(PEDIDs, proband_IDs, title)
+    return({"MgvIDs":MgvIDs, "title":title})

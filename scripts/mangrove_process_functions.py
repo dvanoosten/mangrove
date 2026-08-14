@@ -223,7 +223,7 @@ def double_check_parents(masterlist, WWW_probands = []):
             if len(set(fathers)) > 1 or len(set(mothers)) > 1:
                 print("Warning: IDs in record map do not map to one parent pair\n", ind, fathers, mothers)            
 
-def make_ped_file(masterlist, WWW_probands = []):
+def make_ped_file(masterlist):
     # make ped file with paternal and maternal IDs for each individual
     rowlist = []
     for ind in masterlist.itertuples():
@@ -233,7 +233,7 @@ def make_ped_file(masterlist, WWW_probands = []):
         suffixes = [int(i.split("_")[2]) for i in ind.All_IDs]
         closest = min(suffixes)
             
-        if closest < 8 or all([prefix in WWW_probands for prefix in prefixes]):
+        if closest < 8:
             prefix = prefixes[suffixes.index(closest)]
             suffix = suffixes[suffixes.index(closest)]
     

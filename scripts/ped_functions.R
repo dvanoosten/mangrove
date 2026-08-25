@@ -65,6 +65,29 @@ trim_ped <- function(ped_obj, ped_data_fam, proband_labs, inv_labs, all_labs, pr
   
   to_keep <- all_labs[unique(to_keep)]
   ped_obj_trim <- subset(ped_obj, to_keep)
+  
+  if (names(ped_obj_trim)[1] != "ID") {
+    relateds_sel <- Filter(function(x) sum(relateds_all == x) > 1, relateds_all)
+    relateds <- inv_labs[unique(relateds_sel)]
+    to_keep <- inv_labs[proband_labs]
+    for (id in relateds) {
+      to_keep <- append(to_keep, id)
+      spouses <- c()
+      if (id %in% ped_data_fam$Father) {
+        spouses <- filter(ped_data_fam, Father == id)$Mother
+      }
+      else if (id %in% ped_data_fam$Mother) {
+        spouses <- filter(ped_data_fam, Mother == id)$Father
+      }
+      if (length(spouses) != 0 & any(! spouses %in% relateds)) {
+        to_keep <- append(to_keep, spouses)
+      }
+    }
+    
+    to_keep <- all_labs[unique(to_keep)]
+    ped_obj_trim <- subset(ped_obj, to_keep)
+  }
+  
   return(ped_obj_trim)
 }
 

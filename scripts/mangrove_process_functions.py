@@ -173,6 +173,8 @@ def make_superped_dict(masterlist, batchID):
     for ind in masterlist.itertuples():
         if len(ind.All_IDs) > 1:
             probands = ["_".join(ID.split("_")[:2]) for ID in ind.All_IDs]
+            if len(set(probands)) == 1:
+                continue
             in_dict = "no"
             for i in superped_dict.keys():
                 if not set(probands).isdisjoint(superped_dict[i]):
@@ -187,10 +189,13 @@ def make_superped_dict(masterlist, batchID):
     for i,j in itertools.combinations(superped_dict.keys(), 2):
         if not superped_dict[j].isdisjoint(superped_dict[i]):
             superped_overlap.append([i,j])
-    for overlap in superped_overlap:
-        i,j = overlap
-        if i not in superped_dict.keys() or j not in superped_dict.keys():
-            print("Warning: one of overlapping superpedigree IDs no longer in dictionary\n", i,j)
+    for k in range(len(superped_overlap)):
+        i,j = superped_overlap[k]
+        if i not in superped_dict.keys():
+            i = [superped for superped in [overlap for overlap in superped_overlap[:k] if i in overlap][-1] if superped != i][0]
+        if j not in superped_dict.keys():
+            j = [superped for superped in [overlap for overlap in superped_overlap[:k] if j in overlap][-1] if superped != j][0]
+        if i == j:
             continue
         for proband in superped_dict[j]:
             superped_dict[i].add(proband)

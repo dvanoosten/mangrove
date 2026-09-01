@@ -36,7 +36,6 @@ def fix_sex(AncID, sex):
 
 def fix_date(date):
     # clean dates: remove other characters, split merged day-month or month-year, correct impossible dates
-    change = 0
     if type(date) == str or type(date) == int:
         date_in = str(date)
         date_clean = date_in.rstrip().lstrip().replace("+","").replace("!","1").replace("--","-").\
@@ -77,15 +76,13 @@ def fix_date(date):
         elif int(day)-1 > 30 or (int(month) in [4,6,9,11] and int(day)-1 > 29) or \
             (int(month) == 2 and int(day)-1 > 27 and int(year)%4 != 0):
             day = day[::-1]
-        if str(day)+"-"+str(month)+"-"+str(year) != date_in:
-            change = 1
-        return((datetime(int(year), int(month), int(day)).strftime("\'%Y-%m-%d"), change))
+        return(datetime(int(year), int(month), int(day)).strftime("\'%Y-%m-%d"))
    
     elif type(date) == datetime:
-        return((date.strftime("\'%Y-%m-%d"), change))
+        return(date.strftime("\'%Y-%m-%d"))
 
     else:
-        return((date, change))
+        return(date)
     
 def record_match(rec1, rec2):
     # check if records of ancestors match based on name, place and date of birth

@@ -217,11 +217,11 @@ def double_check_parents(masterlist, WWW_probands = []):
                     mat_ogID = prefix + "_" + str((suffix*2)+1)
                     
                     if len(masterlist[masterlist['All_IDs'].apply(lambda x: pat_ogID in x)]) > 0:
-                        pat_ALP = masterlist.loc[masterlist['All_IDs'].apply(lambda x: pat_ogID in x), "MgvID"].values[0]
-                        fathers.append(pat_ALP)
+                        pat_Mgv = masterlist.loc[masterlist['All_IDs'].apply(lambda x: pat_ogID in x), "MgvID"].values[0]
+                        fathers.append(pat_Mgv)
                     if len(masterlist[masterlist['All_IDs'].apply(lambda x: mat_ogID in x)]) > 0:
-                        mat_ALP = masterlist.loc[masterlist['All_IDs'].apply(lambda x: mat_ogID in x), "MgvID"].values[0]
-                        mothers.append(mat_ALP)
+                        mat_Mgv = masterlist.loc[masterlist['All_IDs'].apply(lambda x: mat_ogID in x), "MgvID"].values[0]
+                        mothers.append(mat_Mgv)
             if len(set(fathers)) > 1 or len(set(mothers)) > 1:
                 print("Warning: IDs in record map do not map to one parent pair\n", ind, fathers, mothers)            
 
@@ -229,7 +229,7 @@ def make_ped_file(masterlist):
     # make ped file with paternal and maternal IDs for each individual
     rowlist = []
     for ind in masterlist.itertuples():
-        pat_ALP, mat_ALP = "", ""
+        pat_Mgv, mat_Mgv = "", ""
         
         prefixes = ["_".join(i.split("_")[:2]) for i in ind.All_IDs]
         suffixes = [int(i.split("_")[2]) for i in ind.All_IDs]
@@ -243,15 +243,15 @@ def make_ped_file(masterlist):
             mat_ogID = prefix + "_" + str((suffix*2)+1)
             
             if len(masterlist[masterlist['All_IDs'].apply(lambda x: pat_ogID in x)]) == 1:
-                pat_ALP = masterlist.loc[masterlist['All_IDs'].apply(lambda x: pat_ogID in x), "MgvID"].values[0]
+                pat_Mgv = masterlist.loc[masterlist['All_IDs'].apply(lambda x: pat_ogID in x), "MgvID"].values[0]
             elif len(masterlist[masterlist['All_IDs'].apply(lambda x: pat_ogID in x)]) > 1:
                 print("Warning: multiple fathers present for record\n", ind, pat_ogID)
             if len(masterlist[masterlist['All_IDs'].apply(lambda x: mat_ogID in x)]) == 1:
-                mat_ALP = masterlist.loc[masterlist['All_IDs'].apply(lambda x: mat_ogID in x), "MgvID"].values[0]
+                mat_Mgv = masterlist.loc[masterlist['All_IDs'].apply(lambda x: mat_ogID in x), "MgvID"].values[0]
             elif len(masterlist[masterlist['All_IDs'].apply(lambda x: mat_ogID in x)]) > 1:
                 print("Warning: multiple mothers present for record\n",ind, mat_ogID)
             
-        rowlist.append(pd.DataFrame({"ID":ind.MgvID, "Father":pat_ALP, "Mother":mat_ALP, "Sex":ind.Sex}, \
+        rowlist.append(pd.DataFrame({"ID":ind.MgvID, "Father":pat_Mgv, "Mother":mat_Mgv, "Sex":ind.Sex}, \
                                     index=[int(ind.MgvID[3:])]))           
     return(pd.concat(rowlist))
 

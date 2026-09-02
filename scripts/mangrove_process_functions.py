@@ -200,7 +200,7 @@ def make_superped_dict(masterlist, batchID):
     superped_dict = dict(zip([f"{batchID}_{i:04}" for i in range(1,len(superped_dict)+1)], superped_dict.values()))
     return(superped_dict)
 
-def double_check_parents(masterlist, WWW_probands = []):
+def double_check_parents(masterlist):
     # double check if records with multiple probands map to one parent pair
     for ind in masterlist.itertuples():
         if len(ind.All_IDs) > 1:
@@ -212,7 +212,7 @@ def double_check_parents(masterlist, WWW_probands = []):
                 prefix = "_".join(ID.split("_")[:2])
                 suffix = int(ID.split("_")[2])
             
-                if suffix < 8 or prefix in WWW_probands:
+                if suffix < 8:
                     pat_ogID = prefix + "_" + str(suffix*2)
                     mat_ogID = prefix + "_" + str((suffix*2)+1)
                     

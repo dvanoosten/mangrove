@@ -25,14 +25,11 @@ get_ped <- function(MgvIDs, trim_ped, ped_data, proband_IDs, masterlist) {
   masterlist_fam <- mutate(masterlist_fam, Label=ifelse(MgvID %in% names(proband_labs),
                                                         proband_labs[MgvID], ped_labs[MgvID])) %>%
     relocate(Label) %>% relocate(MgvID, .after=last_col())
-  
-  all_labs <- setNames(masterlist_fam$Label, masterlist_fam$MgvID)
-  inv_labs <- setNames(masterlist_fam$MgvID, masterlist_fam$Label)
-  
+
   ped_obj <- relabel(ped_obj, new=masterlist_fam$Label, old=masterlist_fam$MgvID)
   
   if (trim_ped) {
-    ped_obj <- trim_ped(ped_obj, ped_data_fam, proband_labs, inv_labs, all_labs, "R")
+    ped_obj <- trim_ped(ped_obj, ped_data_fam, proband_labs)
     masterlist_fam <- filter(masterlist_fam, Label %in% ped_obj$ID)
   }
   

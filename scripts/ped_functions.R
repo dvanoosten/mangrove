@@ -1,5 +1,6 @@
 library(tidyverse)
 library(pedtools)
+library(ribd)
 
 add_dummy_parents <- function(ped_data) {
   # check for individuals with only one parent, add dummy parent
@@ -28,64 +29,48 @@ add_dummy_parents <- function(ped_data) {
   return(ped_data)
 }
 
-trim_ped <- function(ped_obj, ped_data_fam, proband_labs, inv_labs, all_labs, prefix="R") {
+check_subset <- function(probands, kinship_mat, superpedid="superped") {
+  # check if all probands are related, make subsets if needed
+  if (length(probands) < 3) return(list(probands) |> setNames(superpedid))
+  if (! any(kinship_mat[probands, probands] == 0)) return(list(probands) |> setNames(superpedid))
+  
+  i <- 1
+  subsets <- list()
+  for (k in (length(probands)-1):2) {
+    subsets_k <- combn(probands, k, simplify = FALSE)
+    for (subset in subsets_k) {
+      if(any(kinship_mat[subset,subset] == 0) |
+         any(mapply(function(x,y) all(y %in% x), subsets, list(subset)))) next
+      subsets[[paste(superpedid, i, sep="_")]] <- subset
+      i <- i + 1
+    }
+  }
+  return(subsets)
+}
+
+trim_ped <- function(ped_obj, ped_data_fam, proband_labs) {
   # trim pedigree to only include ancestors related to multiple probands
-  if (length(proband_labs) == 1) {
-    return(ped_obj)
-  }
-  relateds_all <- c()
-  for (proband in proband_labs) {
-    relateds_all <- append(relateds_all,
-                           Filter(function(x) ! x %in% unrelated(ped_obj, proband), ped_obj$ID)
-    )
-  }
-  relateds_sel <- c()
-  for (proband in proband_labs) {
-    relateds_prob <- Filter(function(x) ! x %in% unrelated(ped_obj, proband), ped_obj$ID)
-    n_rel_prob <- length(Filter(function(x) startsWith(x, prefix), relateds_prob))
-    relateds_prob <- Filter(function(x) ! sum(relateds_all == x) < n_rel_prob, relateds_prob)
-    relateds_sel <- append(relateds_sel, relateds_prob)
+  kinship_mat <- kinship(ped_obj, simplify=FALSE)
+  proband_subsets <- check_subset(proband_labs, kinship_mat)
+  shared <- c()
+  for (subset in proband_subsets) {
+    n <- length(subset)
+    ID_list <- c(subset, unlist(sapply(subset, function(x) names(which(kinship_mat[,x] > 0, arr.ind = TRUE)))))
+    ID_list <- Filter(function(x) sum(ID_list == x) >= n, ID_list)
+    shared <- append(shared, c(shared, ID_list))
   }
   
-  relateds <- inv_labs[unique(relateds_sel)]
-  to_keep <- inv_labs[proband_labs]
-  for (id in relateds) {
-    to_keep <- append(to_keep, id)
-    spouses <- c()
-    if (id %in% ped_data_fam$Father) {
-      spouses <- filter(ped_data_fam, Father == id)$Mother
-    }
-    else if (id %in% ped_data_fam$Mother) {
-      spouses <- filter(ped_data_fam, Mother == id)$Father
-    }
-    if (length(spouses) != 0 & any(! spouses %in% relateds)) {
-      to_keep <- append(to_keep, spouses)
-    }
-  }
-  
-  to_keep <- all_labs[unique(to_keep)]
-  ped_obj_trim <- subset(ped_obj, to_keep)
+  ped_obj_trim <- subset(ped_obj, unique(shared), missingParents="include")
   
   if (names(ped_obj_trim)[1] != "ID") {
-    relateds_sel <- Filter(function(x) sum(relateds_all == x) > 1, relateds_all)
-    relateds <- inv_labs[unique(relateds_sel)]
-    to_keep <- inv_labs[proband_labs]
-    for (id in relateds) {
-      to_keep <- append(to_keep, id)
-      spouses <- c()
-      if (id %in% ped_data_fam$Father) {
-        spouses <- filter(ped_data_fam, Father == id)$Mother
-      }
-      else if (id %in% ped_data_fam$Mother) {
-        spouses <- filter(ped_data_fam, Mother == id)$Father
-      }
-      if (length(spouses) != 0 & any(! spouses %in% relateds)) {
-        to_keep <- append(to_keep, spouses)
-      }
+    shared <- c()
+    for (subset in proband_subsets) {
+      ID_list <- c(subset, unlist(sapply(subset, function(x) names(which(kinship_mat[,x] > 0, arr.ind = TRUE)))))
+      ID_list <- Filter(function(x) sum(ID_list == x) >= 2, ID_list)
+      shared <- append(shared, c(shared, ID_list))
     }
     
-    to_keep <- all_labs[unique(to_keep)]
-    ped_obj_trim <- subset(ped_obj, to_keep)
+    ped_obj_trim <- subset(ped_obj, unique(shared), missingParents="include")
   }
   
   return(ped_obj_trim)

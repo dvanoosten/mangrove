@@ -1,6 +1,6 @@
 ### Introduction
 Mangrove is a software toolkit for reconstructing extended pedigrees (superpedigrees) from archive data. Key features include automated detection of shared ancestors and an interactive databrowser to view the constructed superpedigrees and query the database of ancestors.
-If Mangrove is useful for your work, please cite Beele, Van Oosten, Wang et al. (2026) Detecting Distant Relatedness Enables Pathogenic Haplotype Discovery In Dutch C9orf72-ALS Patients, bioRxiv when publishing.  Please note that this is a beta version, and despite our tests, there might still be some minor issues with the code. For technical support, feedback, or other inquiries, feel free to contact Daphne van Oosten at d.vanoosten-6@umcutrecht.nl
+If Mangrove is useful for your work, please cite [Van Oosten, Beele, Wang et al. (2026) A Framework For Large-Scale Reconstruction Of Extended Pedigrees To Facilitate Gene Discovery In ALS, medRxiv](https://doi.org/10.64898/2026.08.21.26360249) when publishing.  Please note that this is a beta version, and despite our tests, there might still be some minor issues with the code. For technical support, feedback, or other inquiries, feel free to contact Daphne van Oosten at d.vanoosten-6@umcutrecht.nl
 
 ![image](mangrove_workflow.png)
 

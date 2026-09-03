@@ -16,7 +16,7 @@ ped_obj <- ped(id = ped_data$ID, fid = ped_data$Father, mid = ped_data$Mother,
                sex = ped_data$Sex, isConnected = FALSE)
 
 proband_IDs <- read.csv(paste0(batchID,"/proband_IDs_",batchID,".csv"), colClasses="character") %>% # CHECK
-  replace(is.na(.), "X")
+  filter(SupPEDID != "")
 ped_obj <- relabel(ped_obj, new=proband_IDs$ogID, old=proband_IDs$MgvID)
 
 # calculate kinship matrix, get pairwise relationships between probands

@@ -81,5 +81,5 @@ check_known_pedigrees <- function(ID1, ID2, proband_IDs) {
   mapply(function(ID1, ID2) {
     ped1 <- filter(proband_IDs, ogID==ID1)$PEDID
     ped2 <- filter(proband_IDs, ogID==ID2)$PEDID
-    return(ped1 == ped2 & ped1 != "X")}, 
+    return(ped1 == ped2 & ped1 != "")}, 
     ID1, ID2)}

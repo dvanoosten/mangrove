@@ -18,7 +18,9 @@ kwartier = pd.read_excel(batchID+"/"+in_file, na_values=na_values) # CHECK
 kwartier["AncID"] = batchID +"_"+ kwartier["AncID"]
 kwartier["First_names"] = kwartier["First_names"].apply(man_fun.fix_name)
 kwartier["Last_name"] = kwartier["Last_name"].apply(man_fun.fix_name)
-print(kwartier[(kwartier["Last_name"].isna()) & ~(kwartier["First_names"].isna())])
+print("Note: potentially fused first and last names", \
+      kwartier[((kwartier["Voornamen"].isna()) & (kwartier["Geboortenaam"].str.contains(" ")))], \
+      kwartier[((kwartier["Geboortenaam"].isna()) & (kwartier["Voornamen"].str.contains(" ")))])
 kwartier = kwartier[~((kwartier["First_names"].isna()) | (kwartier["Last_name"].isna()))]
 
 kwartier["Initials"] = kwartier["First_names"].apply(man_fun.get_initials)
@@ -38,6 +40,7 @@ with open("royals/geocodes.txt", "r") as f: # CHECK
 with open("royals/geocodes_manual.txt", "r") as f: # CHECK
   city_codes.update(dict(x.rstrip().split(";", 1) for x in f))
   
+print("Note: cities not found by geopy")
 for city in cities:
     if city not in city_codes:
         gps = geocode({"city":city}, timeout=10) # if applicable: add "country:[country]" in the dictionary

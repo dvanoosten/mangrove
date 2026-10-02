@@ -55,6 +55,8 @@ def fix_date(date):
             elif len(day) == 2:
                 month = day[1:]
                 day = day[:1]
+                if day == "0":
+                    day = "1"
             elif len(day) == 4:
                 month = day[2:]
                 day = day[:2]
